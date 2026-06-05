@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wire Gauge / Metric / Standard Drill Bit Conversion Chart</title>
+<style>
+  :root{
+    --gauge:#d98a00;   /* amber  */
+    --std:#2f6fed;     /* blue   */
+    --metric:#1f9d57;  /* green  */
+    --ink:#1c2127;
+    --muted:#8a93a0;
+    --line:#e6e9ee;
+    --bg:#f7f8fa;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  header{
+    padding:28px 24px 18px; max-width:1180px; margin:0 auto;
+  }
+  h1{font-size:24px; margin:0 0 6px}
+  p.lead{margin:0 0 14px; color:#48505c; max-width:760px}
+  .legend{display:flex; gap:18px; flex-wrap:wrap; align-items:center; margin:10px 0 4px}
+  .legend .item{display:flex; align-items:center; gap:7px; font-weight:600; font-size:13px}
+  .swatch{width:14px; height:14px; border-radius:3px; display:inline-block}
+  .sw-gauge{background:var(--gauge)} .sw-std{background:var(--std)} .sw-metric{background:var(--metric)}
+  .controls{margin:14px 0 0; display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  .controls input{
+    padding:8px 11px; border:1px solid var(--line); border-radius:8px; font-size:14px; width:240px;
+    background:#fff;
+  }
+  .controls .hint{color:var(--muted); font-size:12.5px}
+  .controls .ctl{display:flex; align-items:center; gap:8px; font-size:13px; color:#5a626e; font-weight:600}
+  .controls select{padding:7px 8px; border:1px solid var(--line); border-radius:8px; background:#fff; font-size:13px}
+  .wrap{max-width:1180px; margin:0 auto 60px; padding:0 24px}
+  table{border-collapse:collapse; width:100%; background:#fff; border:1px solid var(--line);
+        border-radius:10px; overflow:hidden}
+  thead th{
+    position:sticky; top:0; background:#fff; z-index:2;
+    text-align:left; font-size:11.5px; letter-spacing:.04em; text-transform:uppercase;
+    color:#5a626e; padding:10px 7px; border-bottom:2px solid var(--line); white-space:nowrap;
+  }
+  tbody td{padding:6px 7px; border-bottom:1px solid var(--line); vertical-align:middle; white-space:nowrap}
+  tbody tr:hover{background:#fafbfc}
+  .num{font-variant-numeric:tabular-nums}
+  .dec{color:#475}
+  .dec-mm{color:#5a626e}
+  td.gauge .val{color:var(--gauge); font-weight:700}
+  td.std   .val{color:var(--std);   font-weight:700}
+  td.metric .val{color:var(--metric); font-weight:700}
+  .gap{color:#cfd4db; font-weight:400}
+  /* relative-size visual */
+  .bars{position:relative; display:flex; flex-direction:column; gap:4px}
+  .bars::before{content:""; position:absolute; left:var(--ref); top:0; bottom:0;
+                border-left:1px dashed #b8bec8}            /* reference = baseline bit */
+  .bars .row{display:flex; align-items:center; gap:8px}
+  .bars .track{position:relative; flex:0 0 auto; width:var(--track); height:10px}
+  .bars .bar{position:absolute; left:0; top:1px; height:8px; border-radius:2px}
+  .bars .bg{background:var(--gauge)} .bars .bs{background:var(--std)} .bars .bm{background:var(--metric)}
+  .bars .lab{font-size:10.5px; line-height:1; color:#5a626e; font-variant-numeric:tabular-nums; white-space:nowrap}
+  .bars .lab b{color:var(--ink)}
+  .bars .rel{color:#9aa3af; margin-left:4px}
+  .bars .lab.base{text-decoration:underline}               /* baseline (current chart row) */
+  .bars .eq{margin-left:12px}
+  .bars .swatch{display:inline-block; width:1em; height:.6em; border-radius:2px; margin-right:5px; vertical-align:middle}
+  footer{max-width:1180px; margin:0 auto; padding:0 24px 50px; color:var(--muted); font-size:12.5px}
+  footer code{background:#eef0f3; padding:1px 5px; border-radius:4px}
+  .count{color:var(--muted); font-size:12.5px}
+  /* ---- nearest-equivalent calculator ---- */
+  .calc-wrap{max-width:1180px; margin:0 auto; padding:0 24px}
+  .calc{background:#fff; border:1px solid var(--line); border-radius:12px; padding:18px 22px; margin:4px 0 28px}
+  .calc h2{font-size:17px; margin:0 0 4px}
+  .calc .sub{margin:0 0 14px; color:#5a626e; font-size:13px}
+  .calc-controls{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  #calcVal{padding:9px 10px; border:1px solid var(--line); border-radius:8px; font-size:15px;
+           width:96px; background:#fff; font-variant-numeric:tabular-nums}
+  .calc-controls select{padding:9px 8px; border:1px solid var(--line); border-radius:8px; background:#fff; font-size:14px}
+  #calcGo{padding:9px 20px; border:0; border-radius:8px; background:var(--ink); color:#fff;
+          font-size:14px; font-weight:700; cursor:pointer}
+  #calcGo:hover{background:#333b46}
+  .calc-controls .ctl{display:flex; align-items:center; gap:8px; font-size:13px; color:#5a626e; font-weight:600}
+  .calc-controls .unitsel{display:inline-flex; align-items:center; gap:3px}
+  .calc-controls .unitsel .suf{color:#5a626e; font-weight:600}
+  .calc-controls .spacer{flex:1 1 12px; min-width:12px}
+  .calc-out{margin-top:18px}
+  .calc-out .err{color:#a23; font-size:14px; margin:0}
+  .calc-out .target-line{font-size:14px; margin:0 0 14px}
+  .calc-out .target-line b{font-variant-numeric:tabular-nums}
+  .ctable table{border-collapse:collapse; background:#fff; border:1px solid var(--line); border-radius:8px; overflow:hidden}
+  .ctable th,.ctable td{padding:8px 14px; border-bottom:1px solid var(--line); text-align:left; font-size:13.5px; white-space:nowrap}
+  .ctable thead th{font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:#5a626e}
+  .ctable tbody th{color:var(--ink); font-weight:700}
+  .ctable .d{color:#5a626e; font-variant-numeric:tabular-nums}
+  .ctable .rel{color:#9aa3af; margin-left:4px; font-variant-numeric:tabular-nums}
+  .ctable .none{color:#c4cad3}
+  .cstrip{margin-top:18px; display:flex; flex-direction:column; gap:6px}
+  .cstrip .srow{display:flex; align-items:center; gap:10px}
+  .cstrip .cbar{height:14px; border-radius:2px; flex:0 0 auto}
+  .cstrip .tgt{height:16px; border:1.5px dashed #6b7280; border-radius:3px; background:transparent; flex:0 0 auto}
+  .cstrip .bg{background:var(--gauge)} .cstrip .bs{background:var(--std)} .cstrip .bm{background:var(--metric)}
+  .cstrip .lab{font-size:12.5px; color:#5a626e; font-variant-numeric:tabular-nums; white-space:nowrap}
+  .cstrip .lab b{color:var(--ink)}
+  .cstrip .lab .sys{display:inline-block; min-width:74px; color:#9aa3af; font-weight:600}
+  .cstrip .rel{color:#9aa3af; margin-left:4px}
+  .cstrip .tline .lab{color:var(--ink); font-weight:700}
+  /* ---- intro layout + "how to read" example box ---- */
+  .intro{display:flex; gap:22px; align-items:flex-start; flex-wrap:wrap}
+  .intro-main{flex:1 1 440px; min-width:300px}
+  .example{flex:0 1 366px; min-width:280px; border:1px solid var(--line); border-radius:10px;
+           padding:12px 15px 14px; background:#fff}
+  .example .ex-title{font-weight:700; font-size:13px; margin:0 0 10px}
+  .example .ex-bars{margin:0 0 11px}
+  .example .ex-notes{margin:0; padding-left:16px; color:#5a626e; font-size:12px; line-height:1.55}
+  .example .ex-notes li{margin:1px 0}
+  .example .ex-notes .k{color:var(--ink); font-weight:600}
+  .example .ex-notes u{text-decoration:underline}
+</style>
+</head>
+<body>
+<header>
+  <div class="intro">
+    <div class="intro-main">
+      <h1>Drill Bit Conversion Chart — Wire Gauge · Metric · Standard</h1>
+      <p class="lead">
+        Every drill size from the number/letter wire-gauge series, the fractional-inch (standard) series,
+        and the metric series, merged and sorted smallest&nbsp;→&nbsp;largest. A blank cell is a
+        <b>gap</b> — that system has no size within tolerance of this row. The <b>Relative size</b> column
+        lists the nearest <b>smaller</b> and <b>larger</b> bit in each system so you can see at a glance
+        which bit you have is closest to the one you need.
+      </p>
+      <div class="legend">
+        <span class="item"><span class="swatch sw-gauge"></span>Wire gauge (No.&nbsp;/ Ltr.)</span>
+        <span class="item"><span class="swatch sw-std"></span>Standard (fractional inch)</span>
+        <span class="item"><span class="swatch sw-metric"></span>Metric (mm)</span>
+      </div>
+    </div>
+    <aside class="example">
+      <p class="ex-title">How to read the Relative-size bars</p>
+      <div class="bars ex-bars" style="--ref:62px;--track:104px">
+        <div class="row"><div class="track"><div class="bar bs" style="width:47px"></div></div>
+          <span class="lab"><b>a smaller bit</b> <span class="rel">−25%</span></span></div>
+        <div class="row"><div class="track"><div class="bar bg" style="width:62px"></div></div>
+          <span class="lab base"><b>this row's size</b> <span class="rel">reference</span></span></div>
+        <div class="row"><div class="track"><div class="bar bm" style="width:68px"></div></div>
+          <span class="lab"><b>a larger bit</b> <span class="rel">+10%</span></span></div>
+      </div>
+      <ul class="ex-notes">
+        <li>The <span class="k">dashed line</span> marks this row's diameter — your reference.</li>
+        <li>A bar's <span class="k">length</span> is its diameter: shorter bars stop left of the line
+            (<span class="k">smaller</span>), longer bars cross it (<span class="k">larger</span>).</li>
+        <li>The farther a bar is from the line, the bigger the size difference — the
+            <span class="k">±%</span> states it exactly.</li>
+        <li>The <u>underlined</u> bar is the bit this row actually is; its color shows the system.</li>
+      </ul>
+    </aside>
+  </div>
+  <div class="controls">
+    <span class="ctl">Closest
+      <select id="calcFrac">
+        <option value="any">Any &Prime;</option>
+        <option value="64">1/64 &Prime;</option>
+        <option value="32">1/32 &Prime;</option>
+        <option value="16">1/16 &Prime;</option>
+      </select>
+      <select id="calcMetric">
+        <option value="any">Any mm</option>
+        <option value="0.5">0.5 mm</option>
+        <option value="1">1.0 mm</option>
+      </select>
+    </span>
+    <input id="filter" type="text" placeholder="Filter… e.g.  #30,  1/8,  3.5 mm,  0.125">
+    <span class="hint">The dashed line in each row is that row's size; bars show the nearest <b>smaller</b> and
+      <b>larger</b> available bit in each system. The <b>Closest</b> menus set which bit sizes count as available,
+      across the whole page.</span>
+    <span class="count" id="count"></span>
+  </div>
+</header>
+
+<div class="calc-wrap">
+  <section class="calc">
+    <h2>Nearest equivalent</h2>
+    <p class="sub">Enter a size and unit — the field also accepts <b>#</b>, <b>&Prime;</b>, and <b>m</b>,
+      which set the unit menu for you (e.g. type <code>1/8"</code>, <code>3.2mm</code>, or <code>#30</code>).</p>
+    <div class="calc-controls">
+      <input id="calcVal" type="text" autocomplete="off" spellcheck="false" placeholder="size">
+      <select id="calcUnit" aria-label="unit">
+        <option value="gauge">#</option>
+        <option value="in" selected>&Prime;</option>
+        <option value="mm">mm</option>
+      </select>
+      <button id="calcGo" type="button">Go</button>
+    </div>
+    <div id="calcOut" class="calc-out"></div>
+  </section>
+</div>
+
+<div class="wrap">
+  <table>
+    <thead>
+      <tr>
+        <th># (AWG)</th>
+        <th>Standard</th>
+        <th>Metric</th>
+        <th>Relative size — closest in each system</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+</div>
+
+<footer>
+  Equivalence/merge tolerance: <code>0.001&nbsp;in</code> (≈ 0.025&nbsp;mm). Metric series listed in
+  0.5&nbsp;mm steps; number drills #80–#1, letter drills A–Z, fractions in 1/64&nbsp;in steps to 1/2&nbsp;in.
+  Decimal sizes are nominal industry values. 1&nbsp;in = 25.4&nbsp;mm.
+</footer>
+
+<script>
+const MM = 25.4;
+
+/* ---- Number (wire-gauge) drills #80 → #1, decimal inches ---- */
+const numberDrills = [
+ [80,0.0135],[79,0.0145],[78,0.0160],[77,0.0180],[76,0.0200],[75,0.0210],[74,0.0225],
+ [73,0.0240],[72,0.0250],[71,0.0260],[70,0.0280],[69,0.0292],[68,0.0310],[67,0.0320],
+ [66,0.0330],[65,0.0350],[64,0.0360],[63,0.0370],[62,0.0380],[61,0.0390],[60,0.0400],
+ [59,0.0410],[58,0.0420],[57,0.0430],[56,0.0465],[55,0.0520],[54,0.0550],[53,0.0595],
+ [52,0.0635],[51,0.0670],[50,0.0700],[49,0.0730],[48,0.0760],[47,0.0785],[46,0.0810],
+ [45,0.0820],[44,0.0860],[43,0.0890],[42,0.0935],[41,0.0960],[40,0.0980],[39,0.0995],
+ [38,0.1015],[37,0.1040],[36,0.1065],[35,0.1100],[34,0.1110],[33,0.1130],[32,0.1160],
+ [31,0.1200],[30,0.1285],[29,0.1360],[28,0.1405],[27,0.1440],[26,0.1470],[25,0.1495],
+ [24,0.1520],[23,0.1540],[22,0.1570],[21,0.1590],[20,0.1610],[19,0.1660],[18,0.1695],
+ [17,0.1730],[16,0.1770],[15,0.1800],[14,0.1820],[13,0.1850],[12,0.1890],[11,0.1910],
+ [10,0.1935],[9,0.1960],[8,0.1990],[7,0.2010],[6,0.2040],[5,0.2055],[4,0.2090],
+ [3,0.2130],[2,0.2210],[1,0.2280]
+];
+
+/* ---- Letter drills A → Z, decimal inches ---- */
+const letterDrills = [
+ ["A",0.234],["B",0.238],["C",0.242],["D",0.246],["E",0.250],["F",0.257],["G",0.261],
+ ["H",0.266],["I",0.272],["J",0.277],["K",0.281],["L",0.290],["M",0.295],["N",0.302],
+ ["O",0.316],["P",0.323],["Q",0.332],["R",0.339],["S",0.348],["T",0.358],["U",0.368],
+ ["V",0.377],["W",0.386],["X",0.397],["Y",0.404],["Z",0.413]
+];
+
+/* ---- Build the size lists (shared by the chart and the calculator) ---- */
+function gcd(a,b){return b?gcd(b,a%b):a;}
+function fracLabel(k){const g=gcd(k,64), n=k/g, den=64/g; return den===1 ? n+'"' : n+"/"+den+'"';}
+
+// wire gauge: number drills + letter drills
+const gaugeAll = [
+  ...numberDrills.map(([n,d]) => ({sys:"gauge", label:"#"+n, dia:d})),
+  ...letterDrills.map(([l,d]) => ({sys:"gauge", label:l,    dia:d})),
+];
+
+// fractional inch, 1/64 → 32/64 (=1/2); k = number of 64ths
+const fracAll = [];
+for(let k=1;k<=32;k++) fracAll.push({sys:"std", label:fracLabel(k), dia:k/64, k});
+
+// metric — curated list of real, commonly-sold drill sizes (every entry is a first-class chart row).
+// 0.1 mm steps where fine sizes are common (≤3 mm), 0.5 mm steps above, plus the standard
+// "tap-drill" in-between sizes that are widely stocked (3.2, 3.3, 4.2, 4.8, 6.8, 10.2).
+const metricSizes = [
+  0.5,0.6,0.7,0.8,0.9,
+  1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,
+  2.0,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,
+  3.0,3.2,3.3,3.5,
+  4.0,4.2,4.5,4.8,
+  5.0,5.5,
+  6.0,6.5,6.8,
+  7.0,7.5,
+  8.0,8.5,
+  9.0,9.5,
+  10.0,10.2,10.5,
+  11.0,11.5,
+  12.0,12.5,
+  13.0,13.5,14.0,
+];
+const metricAll = metricSizes.map(mm => ({sys:"metric", label:String(mm)+" mm", dia:mm/MM, mm}));
+const items = [...gaugeAll, ...fracAll, ...metricAll];
+
+/* per-system sorted lists for nearest-lookup */
+const bySys = {gauge:[], std:[], metric:[]};
+items.forEach(it => bySys[it.sys].push(it));
+for(const s in bySys) bySys[s].sort((a,b)=>a.dia-b.dia);
+
+function nearest(sys, dia){
+  let best=null, bd=Infinity;
+  for(const it of bySys[sys]){
+    const d = Math.abs(it.dia-dia);
+    if(d<bd){bd=d; best=it;}
+  }
+  return {item:best, diff:bd};
+}
+
+/* ---- Merge into slots within tolerance ---- */
+const TOL = 0.001; // inch
+items.sort((a,b)=>a.dia-b.dia);
+const slots = [];
+for(const it of items){
+  const last = slots[slots.length-1];
+  if(last && !last.cells[it.sys] && Math.abs(it.dia-last.repDia)<=TOL){
+    last.cells[it.sys] = it;
+    last.members.push(it);
+    last.repDia = last.members.reduce((s,m)=>s+m.dia,0)/last.members.length;
+  } else {
+    slots.push({repDia:it.dia, members:[it], cells:{[it.sys]:it}});
+  }
+}
+
+/* ---- Render (re-runs whenever the Closest menus change) ---- */
+// Each row's reference is its representative diameter — the dashed guide line at --ref.
+// For every system we draw the nearest smaller and nearest larger available bit, scaled
+// relative to that reference (shorter = smaller, crossing the line = larger). A bit within
+// the merge tolerance collapses to a single "exact" bar on the line. The Closest menus
+// decide which bit sizes count as available.
+const REF_PX = 30;              // px width of the reference (= baseline bit) marker
+const TRACK  = 48;              // bar track width; caps far-away bracket bars (1.6x REF; % label keeps the truth)
+const CLS    = {gauge:"bg", std:"bs", metric:"bm"};
+const fmtIn  = d => d.toFixed(4);
+const fmtMm  = d => (d*MM).toFixed(2);
+const tbody  = document.getElementById("rows");
+let   allRows = [];
+
+function relTag(d, ref){ const r = d/ref - 1;
+  return Math.abs(r) < 5e-4 ? "exact" : (r>0?"+":"−") + (Math.abs(r)*100).toFixed(1) + "%"; }
+
+function renderChart(){
+  const pools = {gauge:gaugeAll, std:fracPool(), metric:metricPool()};
+  tbody.innerHTML = slots.map(slot => {
+    const c = slot.cells, ref = slot.repDia;
+    const cell = (sys) => c[sys] ? `<span class="val">${c[sys].label}</span>` : `<span class="gap">—</span>`;
+
+    // classify each system: an exact bit in the (filtered) pool = an equivalency for this row;
+    // otherwise show the nearest smaller & larger available bit (the "relative options").
+    const equivs = [], brackets = [];
+    for(const sys of ["gauge","std","metric"]){
+      const pool = pools[sys];
+      const exact = pool.find(it => Math.abs(it.dia - ref) <= TOL);
+      if(exact){ equivs.push({sys, it:exact}); continue; }
+      const {lo, hi} = bracket(pool, ref);
+      if(lo) brackets.push({sys, it:lo});
+      if(hi) brackets.push({sys, it:hi});
+    }
+    equivs.sort((a,b) => a.it.dia - b.it.dia);     // narrowest equivalency becomes the baseline
+
+    const barW = it => Math.min(REF_PX * it.dia / ref, TRACK).toFixed(2);
+    const dims = it => `${fmtIn(it.dia)}&Prime;·${fmtMm(it.dia)}`;
+    // every line carries its diameter; we sort the whole list smallest -> largest (baseline included)
+    // so the options read in the SAME order as the chart — smaller above, larger below.
+    const lines = [];
+    if(equivs.length){
+      const [base, ...rest] = equivs;            // fold the other equivalencies into the baseline's description
+      const extra = rest.map(e =>
+        `<span class="eq"><span class="swatch ${CLS[e.sys]}"></span><b>${e.it.label}</b> ${dims(e.it)} exact</span>`
+      ).join("");
+      lines.push({dia: base.it.dia,
+        html: `<div class="row"><div class="track"><div class="bar ${CLS[base.sys]}" style="width:${barW(base.it)}px"></div></div>`
+            + `<span class="lab base"><b>${base.it.label}</b> ${dims(base.it)} exact${extra}</span></div>`});
+    }
+    for(const {sys, it} of brackets){
+      lines.push({dia: it.dia,
+        html: `<div class="row"><div class="track"><div class="bar ${CLS[sys]}" style="width:${barW(it)}px"></div></div>`
+            + `<span class="lab"><b>${it.label}</b> ${dims(it)} <span class="rel">${relTag(it.dia, ref)}</span></span></div>`});
+    }
+    lines.sort((a,b) => a.dia - b.dia);
+    const barHtml = lines.map(l => l.html).join("");
+
+    const search = slot.members.map(m=>m.label).join(" ") + " " + fmtIn(ref) + " " + fmtMm(ref);
+    return `<tr data-s="${search.toLowerCase()}">
+      <td class="gauge num">${cell("gauge")}</td>
+      <td class="std num">${cell("std")}</td>
+      <td class="metric num">${cell("metric")}</td>
+      <td><div class="bars" style="--ref:${REF_PX}px;--track:${TRACK}px">${barHtml}</div></td>
+    </tr>`;
+  }).join("");
+  allRows = Array.from(tbody.querySelectorAll("tr"));
+  applyFilter();
+}
+
+/* ---- Filter ---- */
+const filter = document.getElementById("filter");
+const count  = document.getElementById("count");
+function applyFilter(){
+  const q = filter.value.trim().toLowerCase();
+  let shown = 0;
+  for(const tr of allRows){
+    const hit = !q || tr.dataset.s.includes(q);
+    tr.style.display = hit ? "" : "none";
+    if(hit) shown++;
+  }
+  count.textContent = q ? `${shown} of ${allRows.length} rows` : `${allRows.length} rows`;
+}
+filter.addEventListener("input", applyFilter);
+
+/* ---- Nearest-equivalent calculator ---- */
+const CALC_REF = 90;            // px width of the "your size" dashed marker (baseline)
+const calcVal  = document.getElementById("calcVal");
+const calcUnit = document.getElementById("calcUnit");
+const calcFrac = document.getElementById("calcFrac");
+const calcMet  = document.getElementById("calcMetric");
+const calcGo   = document.getElementById("calcGo");
+const calcOut  = document.getElementById("calcOut");
+
+// Field accepts digits, "/", "."; typing # " or m sets the unit menu and is stripped out.
+calcVal.addEventListener("input", e => {
+  const raw = e.target.value;
+  if(raw.includes("#")) calcUnit.value = "gauge";
+  if(raw.includes('"')) calcUnit.value = "in";
+  if(/m/i.test(raw))    calcUnit.value = "mm";
+  const cleaned = raw.replace(/[^0-9/.]/g, "");
+  if(cleaned !== raw) e.target.value = cleaned;
+});
+calcVal.addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); runCalc(); }});
+calcGo.addEventListener("click", runCalc);
+// the Closest menus drive the whole page: re-render the chart and re-run the last calc
+function onClosestChange(){ renderChart(); if(calcVal.value.trim()) runCalc(); }
+calcFrac.addEventListener("change", onClosestChange);
+calcMet .addEventListener("change", onClosestChange);
+calcUnit.addEventListener("change", () => { if(calcVal.value.trim()) runCalc(); });
+
+function parseVal(s){
+  s = s.trim();
+  if(!s) return NaN;
+  if(s.includes("/")){ const [a,b] = s.split("/"); const n=parseFloat(a), d=parseFloat(b);
+                       return d ? n/d : NaN; }
+  return parseFloat(s);
+}
+function targetDia(){
+  const v = parseVal(calcVal.value);
+  if(isNaN(v)) return null;
+  switch(calcUnit.value){
+    case "in":    return v;
+    case "mm":    return v/MM;
+    case "gauge": { const hit = numberDrills.find(([n]) => n === Math.round(v)); return hit ? hit[1] : null; }
+  }
+  return null;
+}
+function fracPool(){
+  const f = calcFrac.value;                       // any | 64 | 32 | 16
+  if(f === "16") return fracAll.filter(x => x.k % 4 === 0);
+  if(f === "32") return fracAll.filter(x => x.k % 2 === 0);
+  return fracAll;                                 // any / 64 = full 1/64 index
+}
+function metricPool(){                              // subset of the common metric sizes
+  const v = calcMet.value;                         // any | 0.5 | 1
+  if(v === "any") return metricAll;
+  const step = parseFloat(v);
+  return metricAll.filter(m => Math.abs(m.mm/step - Math.round(m.mm/step)) < 1e-9);
+}
+function bracket(pool, dia){                       // nearest <= and nearest >=
+  let lo=null, hi=null;
+  for(const it of pool){
+    if(it.dia <= dia+1e-9 && (!lo || it.dia > lo.dia)) lo = it;
+    if(it.dia >= dia-1e-9 && (!hi || it.dia < hi.dia)) hi = it;
+  }
+  return {lo, hi};
+}
+function pct(d, ref){ const r = d/ref - 1;
+  return Math.abs(r) < 5e-5 ? "exact" : (r>0?"+":"−") + (Math.abs(r)*100).toFixed(1) + "%"; }
+
+function runCalc(){
+  const dia = targetDia();
+  if(dia === null){
+    calcOut.innerHTML = `<p class="err">Enter a size — e.g. <code>0.125"</code>, <code>1/8"</code>, <code>3.2 mm</code>, or <code>#30</code> (with the # unit).</p>`;
+    return;
+  }
+  const pools = {gauge:gaugeAll, std:fracPool(), metric:metricPool()};
+  const names = {gauge:"Wire gauge", std:"Standard", metric:"Metric"};
+  const res = {}; for(const s in pools) res[s] = bracket(pools[s], dia);
+
+  const fmtItem = it => it
+    ? `<b>${it.label}</b> <span class="d">${fmtIn(it.dia)}&Prime; · ${fmtMm(it.dia)} mm</span> <span class="rel">${pct(it.dia,dia)}</span>`
+    : `<span class="none">— none —</span>`;
+  let rows = "";
+  for(const s of ["gauge","std","metric"])
+    rows += `<tr><th>${names[s]}</th><td>${fmtItem(res[s].lo)}</td><td>${fmtItem(res[s].hi)}</td></tr>`;
+
+  // visual strip: the target marker plus every distinct bracketing bit, sorted by size
+  const marks = [{kind:"target", dia, sys:"", label:"your size"}];
+  for(const s in res){
+    if(res[s].lo) marks.push({kind:s, ...res[s].lo});
+    if(res[s].hi && (!res[s].lo || res[s].hi.dia !== res[s].lo.dia)) marks.push({kind:s, ...res[s].hi});
+  }
+  marks.sort((a,b) => a.dia - b.dia);
+  const CLS = {gauge:"bg", std:"bs", metric:"bm"};
+  const SYS = {gauge:"wire gauge", std:"standard", metric:"metric"};
+  const strip = marks.map(m => {
+    const w = (CALC_REF * m.dia / dia).toFixed(2);
+    if(m.kind === "target")
+      return `<div class="srow tline"><div class="tgt" style="width:${w}px"></div>
+        <span class="lab">your size&nbsp; <b>${fmtIn(dia)}&Prime;</b> · ${fmtMm(dia)} mm</span></div>`;
+    return `<div class="srow"><div class="cbar ${CLS[m.kind]}" style="width:${w}px"></div>
+        <span class="lab"><span class="sys">${SYS[m.kind]}</span><b>${m.label}</b>
+          &nbsp;${fmtIn(m.dia)}&Prime; · ${fmtMm(m.dia)} mm <span class="rel">${pct(m.dia,dia)}</span></span></div>`;
+  }).join("");
+
+  calcOut.innerHTML =
+    `<p class="target-line">Your size: <b>${fmtIn(dia)}&Prime;</b> · <b>${fmtMm(dia)} mm</b></p>
+     <div class="ctable"><table>
+       <thead><tr><th></th><th>Nearest smaller ≤</th><th>Nearest larger ≥</th></tr></thead>
+       <tbody>${rows}</tbody></table></div>
+     <div class="cstrip">${strip}</div>`;
+}
+
+/* ---- Initial paint ---- */
+renderChart();
+</script>
+</body>
+</html>

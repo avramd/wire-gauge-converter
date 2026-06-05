@@ -1,0 +1,5 @@
+# local deploy/host config — not source
+.env
+
+# local Claude Code settings
+.claude/
