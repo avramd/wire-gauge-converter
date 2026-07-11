@@ -3,3 +3,6 @@
 
 # local Claude Code settings
 .claude/
+
+# dev tooling — the deploy artifact is the single html file
+node_modules/

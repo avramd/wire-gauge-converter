@@ -70,41 +70,35 @@
   footer{max-width:1180px; margin:0 auto; padding:0 24px 50px; color:var(--muted); font-size:12.5px}
   footer code{background:#eef0f3; padding:1px 5px; border-radius:4px}
   .count{color:var(--muted); font-size:12.5px}
-  /* ---- nearest-equivalent calculator ---- */
-  .calc-wrap{max-width:1180px; margin:0 auto; padding:0 24px}
-  .calc{background:#fff; border:1px solid var(--line); border-radius:12px; padding:18px 22px; margin:4px 0 28px}
-  .calc h2{font-size:17px; margin:0 0 4px}
-  .calc .sub{margin:0 0 14px; color:#5a626e; font-size:13px}
-  .calc-controls{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
-  #calcVal{padding:9px 10px; border:1px solid var(--line); border-radius:8px; font-size:15px;
-           width:96px; background:#fff; font-variant-numeric:tabular-nums}
-  .calc-controls select{padding:9px 8px; border:1px solid var(--line); border-radius:8px; background:#fff; font-size:14px}
-  #calcGo{padding:9px 20px; border:0; border-radius:8px; background:var(--ink); color:#fff;
-          font-size:14px; font-weight:700; cursor:pointer}
-  #calcGo:hover{background:#333b46}
-  .calc-controls .ctl{display:flex; align-items:center; gap:8px; font-size:13px; color:#5a626e; font-weight:600}
-  .calc-controls .unitsel{display:inline-flex; align-items:center; gap:3px}
-  .calc-controls .unitsel .suf{color:#5a626e; font-weight:600}
-  .calc-controls .spacer{flex:1 1 12px; min-width:12px}
-  .calc-out{margin-top:18px}
-  .calc-out .err{color:#a23; font-size:14px; margin:0}
-  .calc-out .target-line{font-size:14px; margin:0 0 14px}
-  .calc-out .target-line b{font-variant-numeric:tabular-nums}
-  .ctable table{border-collapse:collapse; background:#fff; border:1px solid var(--line); border-radius:8px; overflow:hidden}
-  .ctable th,.ctable td{padding:8px 14px; border-bottom:1px solid var(--line); text-align:left; font-size:13.5px; white-space:nowrap}
-  .ctable thead th{font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:#5a626e}
-  .ctable tbody th{color:var(--ink); font-weight:700}
-  .ctable .d{color:#5a626e; font-variant-numeric:tabular-nums}
-  .ctable .rel{color:#9aa3af; margin-left:4px; font-variant-numeric:tabular-nums}
-  .ctable .none{color:#c4cad3}
-  .cstrip{margin-top:18px; display:flex; flex-direction:column; gap:6px}
-  .cstrip .srow{display:flex; align-items:center; gap:10px}
-  .cstrip .cbar{height:14px; border-radius:2px; flex:0 0 auto}
-  .cstrip .tgt{height:16px; border:1.5px dashed #6b7280; border-radius:3px; background:transparent; flex:0 0 auto}
+  /* ---- nearest-equivalent calculators (any number of side-by-side cards) ---- */
+  .calc-wrap{max-width:1180px; margin:4px auto 28px; padding:0 24px;
+             display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
+             gap:14px; align-items:start}
+  .calc{background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px 14px 14px}
+  .calc-head{display:flex; align-items:center; gap:6px; margin:0 0 8px}
+  .calc-head h2{font-size:15px; margin:0; flex:1 1 auto}
+  .mini{width:24px; height:24px; padding:0; border:1px solid var(--line); border-radius:6px;
+        background:#fff; color:#5a626e; font-size:15px; line-height:1; font-weight:700; cursor:pointer}
+  .mini:hover{background:#f0f2f5; color:var(--ink)}
+  .calc-label{display:block; width:100%; margin:0 0 8px; padding:6px 9px;
+              border:1px solid var(--line); border-radius:8px; font-size:13px; background:#fff}
+  .calc-controls{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+  .calc-val{padding:7px 9px; border:1px solid var(--line); border-radius:8px; font-size:14px;
+            width:0; flex:1 1 90px; background:#fff; font-variant-numeric:tabular-nums}
+  .calc-controls select{padding:7px 6px; border:1px solid var(--line); border-radius:8px; background:#fff; font-size:13px}
+  .calc-go{padding:7px 14px; border:0; border-radius:8px; background:var(--ink); color:#fff;
+           font-size:13px; font-weight:700; cursor:pointer}
+  .calc-go:hover{background:#333b46}
+  .calc-out{margin-top:12px; overflow-x:auto}
+  .calc-out .err{color:#a23; font-size:13px; margin:0}
+  .cstrip{display:flex; flex-direction:column; gap:5px}
+  .cstrip .srow{display:flex; align-items:center; gap:8px}
+  .cstrip .cbar{height:12px; border-radius:2px; flex:0 0 auto}
+  .cstrip .tgt{height:14px; border:1.5px dashed #6b7280; border-radius:3px; background:transparent; flex:0 0 auto}
   .cstrip .bg{background:var(--gauge)} .cstrip .bs{background:var(--std)} .cstrip .bm{background:var(--metric)}
-  .cstrip .lab{font-size:12.5px; color:#5a626e; font-variant-numeric:tabular-nums; white-space:nowrap}
+  .cstrip .lab{font-size:12px; color:#5a626e; font-variant-numeric:tabular-nums; white-space:nowrap}
   .cstrip .lab b{color:var(--ink)}
-  .cstrip .lab .sys{display:inline-block; min-width:74px; color:#9aa3af; font-weight:600}
+  .cstrip .lab .sys{display:inline-block; min-width:56px; color:#9aa3af; font-weight:600}
   .cstrip .rel{color:#9aa3af; margin-left:4px}
   .cstrip .tline .lab{color:var(--ink); font-weight:700}
   /* ---- intro layout + "how to read" example box ---- */
@@ -180,23 +174,7 @@
   </div>
 </header>
 
-<div class="calc-wrap">
-  <section class="calc">
-    <h2>Nearest equivalent</h2>
-    <p class="sub">Enter a size and unit — the field also accepts <b>#</b>, <b>&Prime;</b>, and <b>m</b>,
-      which set the unit menu for you (e.g. type <code>1/8"</code>, <code>3.2mm</code>, or <code>#30</code>).</p>
-    <div class="calc-controls">
-      <input id="calcVal" type="text" autocomplete="off" spellcheck="false" placeholder="size">
-      <select id="calcUnit" aria-label="unit">
-        <option value="gauge">#</option>
-        <option value="in" selected>&Prime;</option>
-        <option value="mm">mm</option>
-      </select>
-      <button id="calcGo" type="button">Go</button>
-    </div>
-    <div id="calcOut" class="calc-out"></div>
-  </section>
-</div>
+<div class="calc-wrap" id="calcs"><!-- calculator cards are built by addCalc() --></div>
 
 <div class="wrap">
   <table>
@@ -320,7 +298,7 @@ const REF_PX = 30;              // px width of the reference (= baseline bit) ma
 const TRACK  = 48;              // bar track width; caps far-away bracket bars (1.6x REF; % label keeps the truth)
 const CLS    = {gauge:"bg", std:"bs", metric:"bm"};
 const fmtIn  = d => d.toFixed(4);
-const fmtMm  = d => (d*MM).toFixed(2);
+const fmtMm  = d => (d*MM + 1e-9).toFixed(2);   // epsilon: 0.125*25.4 = 3.17499… must show 3.18, not 3.17
 const tbody  = document.getElementById("rows");
 let   allRows = [];
 
@@ -395,31 +373,81 @@ function applyFilter(){
 }
 filter.addEventListener("input", applyFilter);
 
-/* ---- Nearest-equivalent calculator ---- */
-const CALC_REF = 90;            // px width of the "your size" dashed marker (baseline)
-const calcVal  = document.getElementById("calcVal");
-const calcUnit = document.getElementById("calcUnit");
+/* ---- Nearest-equivalent calculators (any number of side-by-side cards) ---- */
+const CALC_REF = 64;            // px width of the "your size" dashed marker (baseline)
 const calcFrac = document.getElementById("calcFrac");
 const calcMet  = document.getElementById("calcMetric");
-const calcGo   = document.getElementById("calcGo");
-const calcOut  = document.getElementById("calcOut");
+const calcs    = [];            // live card objects, in creation order
 
-// Field accepts digits, "/", "."; typing # " or m sets the unit menu and is stripped out.
-calcVal.addEventListener("input", e => {
-  const raw = e.target.value;
-  if(raw.includes("#")) calcUnit.value = "gauge";
-  if(raw.includes('"')) calcUnit.value = "in";
-  if(/m/i.test(raw))    calcUnit.value = "mm";
-  const cleaned = raw.replace(/[^0-9/.]/g, "");
-  if(cleaned !== raw) e.target.value = cleaned;
-});
-calcVal.addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); runCalc(); }});
-calcGo.addEventListener("click", runCalc);
-// the Closest menus drive the whole page: re-render the chart and re-run the last calc
-function onClosestChange(){ renderChart(); if(calcVal.value.trim()) runCalc(); }
+function calcCardHtml(removable){
+  return `
+    <div class="calc-head">
+      <h2>Nearest equivalent</h2>
+      <button type="button" class="mini add" title="Add another calculator">+</button>
+      ${removable ? '<button type="button" class="mini del" title="Remove this calculator">&minus;</button>' : ''}
+    </div>
+    <input class="calc-label" type="text" autocomplete="off" spellcheck="false"
+           placeholder="Label — what is this measurement?">
+    <div class="calc-controls">
+      <input class="calc-val" type="text" autocomplete="off" spellcheck="false"
+             placeholder='1/8&quot;, 3.2mm, #30'
+             title="Typing #, &quot;, or m sets the unit menu for you">
+      <select class="calc-unit" aria-label="unit">
+        <option value="gauge">#</option>
+        <option value="in" selected>&Prime;</option>
+        <option value="mm">mm</option>
+      </select>
+      <button type="button" class="calc-go">Go</button>
+    </div>
+    <div class="calc-out"></div>`;
+}
+
+// Build a card; the first one (calcs empty) has no [-] button. `afterCard` places the
+// new card right after the one whose [+] was clicked, so copies grow to the right/below.
+function addCalc(afterCard){
+  const el = document.createElement("section");
+  el.className = "calc";
+  el.innerHTML = calcCardHtml(calcs.length > 0);
+  const card = {
+    el,
+    val:  el.querySelector(".calc-val"),
+    unit: el.querySelector(".calc-unit"),
+    out:  el.querySelector(".calc-out"),
+  };
+
+  // Size field accepts digits, "/", "."; typing # " or m sets the unit menu and is stripped out.
+  card.val.addEventListener("input", e => {
+    const raw = e.target.value;
+    if(raw.includes("#")) card.unit.value = "gauge";
+    if(raw.includes('"')) card.unit.value = "in";
+    if(/m/i.test(raw))    card.unit.value = "mm";
+    const cleaned = raw.replace(/[^0-9/.]/g, "");
+    if(cleaned !== raw) e.target.value = cleaned;
+  });
+  card.val.addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); runCalc(card); }});
+  card.unit.addEventListener("change", () => { if(card.val.value.trim()) runCalc(card); });
+  el.querySelector(".calc-go").addEventListener("click", () => runCalc(card));
+  el.querySelector(".mini.add").addEventListener("click", () => addCalc(card));
+  const del = el.querySelector(".mini.del");
+  if(del) del.addEventListener("click", () => {
+    calcs.splice(calcs.indexOf(card), 1);
+    el.remove();
+  });
+
+  if(afterCard) afterCard.el.after(el);
+  else document.getElementById("calcs").appendChild(el);
+  calcs.push(card);
+  if(afterCard) card.val.focus();
+  return card;
+}
+
+// the Closest menus drive the whole page: re-render the chart and re-run every calc
+function onClosestChange(){
+  renderChart();
+  for(const c of calcs) if(c.val.value.trim()) runCalc(c);
+}
 calcFrac.addEventListener("change", onClosestChange);
 calcMet .addEventListener("change", onClosestChange);
-calcUnit.addEventListener("change", () => { if(calcVal.value.trim()) runCalc(); });
 
 function parseVal(s){
   s = s.trim();
@@ -428,10 +456,10 @@ function parseVal(s){
                        return d ? n/d : NaN; }
   return parseFloat(s);
 }
-function targetDia(){
-  const v = parseVal(calcVal.value);
+function targetDia(card){
+  const v = parseVal(card.val.value);
   if(isNaN(v)) return null;
-  switch(calcUnit.value){
+  switch(card.unit.value){
     case "in":    return v;
     case "mm":    return v/MM;
     case "gauge": { const hit = numberDrills.find(([n]) => n === Math.round(v)); return hit ? hit[1] : null; }
@@ -461,22 +489,14 @@ function bracket(pool, dia){                       // nearest <= and nearest >=
 function pct(d, ref){ const r = d/ref - 1;
   return Math.abs(r) < 5e-5 ? "exact" : (r>0?"+":"−") + (Math.abs(r)*100).toFixed(1) + "%"; }
 
-function runCalc(){
-  const dia = targetDia();
+function runCalc(card){
+  const dia = targetDia(card);
   if(dia === null){
-    calcOut.innerHTML = `<p class="err">Enter a size — e.g. <code>0.125"</code>, <code>1/8"</code>, <code>3.2 mm</code>, or <code>#30</code> (with the # unit).</p>`;
+    card.out.innerHTML = `<p class="err">Enter a size — e.g. <code>0.125"</code>, <code>1/8"</code>, <code>3.2 mm</code>, or <code>#30</code> (with the # unit).</p>`;
     return;
   }
   const pools = {gauge:gaugeAll, std:fracPool(), metric:metricPool()};
-  const names = {gauge:"Wire gauge", std:"Standard", metric:"Metric"};
   const res = {}; for(const s in pools) res[s] = bracket(pools[s], dia);
-
-  const fmtItem = it => it
-    ? `<b>${it.label}</b> <span class="d">${fmtIn(it.dia)}&Prime; · ${fmtMm(it.dia)} mm</span> <span class="rel">${pct(it.dia,dia)}</span>`
-    : `<span class="none">— none —</span>`;
-  let rows = "";
-  for(const s of ["gauge","std","metric"])
-    rows += `<tr><th>${names[s]}</th><td>${fmtItem(res[s].lo)}</td><td>${fmtItem(res[s].hi)}</td></tr>`;
 
   // visual strip: the target marker plus every distinct bracketing bit, sorted by size
   const marks = [{kind:"target", dia, sys:"", label:"your size"}];
@@ -486,7 +506,7 @@ function runCalc(){
   }
   marks.sort((a,b) => a.dia - b.dia);
   const CLS = {gauge:"bg", std:"bs", metric:"bm"};
-  const SYS = {gauge:"wire gauge", std:"standard", metric:"metric"};
+  const SYS = {gauge:"gauge", std:"standard", metric:"metric"};
   const strip = marks.map(m => {
     const w = (CALC_REF * m.dia / dia).toFixed(2);
     if(m.kind === "target")
@@ -497,16 +517,12 @@ function runCalc(){
           &nbsp;${fmtIn(m.dia)}&Prime; · ${fmtMm(m.dia)} mm <span class="rel">${pct(m.dia,dia)}</span></span></div>`;
   }).join("");
 
-  calcOut.innerHTML =
-    `<p class="target-line">Your size: <b>${fmtIn(dia)}&Prime;</b> · <b>${fmtMm(dia)} mm</b></p>
-     <div class="ctable"><table>
-       <thead><tr><th></th><th>Nearest smaller ≤</th><th>Nearest larger ≥</th></tr></thead>
-       <tbody>${rows}</tbody></table></div>
-     <div class="cstrip">${strip}</div>`;
+  card.out.innerHTML = `<div class="cstrip">${strip}</div>`;
 }
 
 /* ---- Initial paint ---- */
 renderChart();
+addCalc();
 </script>
 </body>
 </html>
