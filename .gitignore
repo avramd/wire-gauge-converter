@@ -1,6 +1,9 @@
 # local deploy/host config — not source
 .env
 
+# macOS
+.DS_Store
+
 # local Claude Code settings
 .claude/
 
