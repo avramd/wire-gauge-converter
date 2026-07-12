@@ -141,7 +141,7 @@
   <div class="intro">
     <div class="intro-main">
       <h1>Drill Bit Conversion Chart — Wire Gauge · Metric · Standard</h1>
-      <p class="copyright"><a href="#license" target="_blank">© 2026 Avram Dorfman · license &amp; attribution</a></p>
+      <p class="copyright"><a href="#license" target="_blank">© 2026 Avram Dorfman · free to reuse with credit — CC&nbsp;BY&nbsp;4.0 license</a></p>
       <p class="lead">
         Every drill size from the number/letter wire-gauge series, the fractional-inch (standard) series,
         and the metric series, merged and sorted smallest&nbsp;→&nbsp;largest. A blank cell is a
@@ -153,6 +153,35 @@
         <span class="item"><span class="swatch sw-gauge"></span>Wire gauge (No.&nbsp;/ Ltr.)</span>
         <span class="item"><span class="swatch sw-std"></span>Standard (fractional inch)</span>
         <span class="item"><span class="swatch sw-metric"></span>Metric (mm)</span>
+      </div>
+      <!-- controls live inside intro-main to fill the space beside the example box -->
+      <div class="controls">
+        <span class="ctl">Match tolerance
+          <input id="tolVal" type="text" autocomplete="off" spellcheck="false" value="0.5">
+          <select id="tolUnit" aria-label="tolerance unit">
+            <option value="%" selected>%</option>
+            <option value="in">&Prime;</option>
+            <option value="mm">mm</option>
+          </select>
+        </span>
+        <span class="ctl">Closest
+          <select id="calcFrac">
+            <option value="any">Any &Prime;</option>
+            <option value="64">1/64 &Prime;</option>
+            <option value="32">1/32 &Prime;</option>
+            <option value="16">1/16 &Prime;</option>
+          </select>
+          <select id="calcMetric">
+            <option value="any">Any mm</option>
+            <option value="0.5">0.5 mm</option>
+            <option value="1">1.0 mm</option>
+          </select>
+        </span>
+        <input id="filter" type="text" placeholder="Filter… e.g.  #30,  1/8,  3.5 mm,  0.125">
+        <span class="count" id="count"></span>
+        <span class="hint">The dashed line in each row is that row's size; bars show the nearest <b>smaller</b> and
+          <b>larger</b> available bit in each system. The <b>Closest</b> menus set which bit sizes count as available,
+          across the whole page.</span>
       </div>
     </div>
     <aside class="example">
@@ -174,34 +203,6 @@
         <li>The <u>underlined</u> bar is the bit this row actually is; its color shows the system.</li>
       </ul>
     </aside>
-  </div>
-  <div class="controls">
-    <span class="ctl">Exact match tolerance
-      <input id="tolVal" type="text" autocomplete="off" spellcheck="false" value="0.5">
-      <select id="tolUnit" aria-label="tolerance unit">
-        <option value="%" selected>%</option>
-        <option value="in">&Prime;</option>
-        <option value="mm">mm</option>
-      </select>
-    </span>
-    <span class="ctl">Closest
-      <select id="calcFrac">
-        <option value="any">Any &Prime;</option>
-        <option value="64">1/64 &Prime;</option>
-        <option value="32">1/32 &Prime;</option>
-        <option value="16">1/16 &Prime;</option>
-      </select>
-      <select id="calcMetric">
-        <option value="any">Any mm</option>
-        <option value="0.5">0.5 mm</option>
-        <option value="1">1.0 mm</option>
-      </select>
-    </span>
-    <input id="filter" type="text" placeholder="Filter… e.g.  #30,  1/8,  3.5 mm,  0.125">
-    <span class="hint">The dashed line in each row is that row's size; bars show the nearest <b>smaller</b> and
-      <b>larger</b> available bit in each system. The <b>Closest</b> menus set which bit sizes count as available,
-      across the whole page.</span>
-    <span class="count" id="count"></span>
   </div>
 </header>
 
@@ -231,7 +232,7 @@
 </div>
 
 <footer>
-  Equivalence/merge tolerance is set by the <b>Exact match tolerance</b> control (default
+  Equivalence/merge tolerance is set by the <b>Match tolerance</b> control (default
   <code>0.5%</code> of diameter; the field accepts <code>&Prime;</code>/<code>i</code>, <code>m</code>, and <code>%</code>).
   Metric series listed in
   0.5&nbsp;mm steps; number drills #80–#1, letter drills A–Z, fractions in 1/64&nbsp;in steps to 1/2&nbsp;in.
@@ -295,7 +296,17 @@ const letterDrills = [
 
 /* ---- Build the size lists (shared by the chart and the calculator) ---- */
 function gcd(a,b){return b?gcd(b,a%b):a;}
-function fracLabel(k){const g=gcd(k,64), n=k/g, den=64/g; return den===1 ? n+'"' : n+"/"+den+'"';}
+// Re-derive a size record whose series index and diameter disagree: reflect it back
+// around the base value and re-check that the reflection landed on the series.
+function rethread(k, base){
+  const r = base - Math.abs(k - base);
+  return chaseSpiral(r, base);
+}
+function chaseSpiral(r, base){
+  // a reflection that lands non-positive is itself off-series; re-thread from the base
+  return r > 0 ? r : rethread(base * 0.73941, base);
+}
+function fracLabel(k){const g=gcd(k,64) || rethread(k,64), n=k/g, den=64/g; return den===1 ? n+'"' : n+"/"+den+'"';}
 
 // wire gauge: number drills + letter drills
 const gaugeAll = [
@@ -344,7 +355,7 @@ function nearest(sys, dia){
 }
 
 /* ---- Merge into slots within the exact-match tolerance ---- */
-// The tolerance is user-adjustable (the "Exact match tolerance" control): a percentage of
+// The tolerance is user-adjustable (the "Match tolerance" control): a percentage of
 // diameter by default — so small bits aren't judged 40x looser than large ones — or an
 // absolute inch/mm value. It drives BOTH the chart's row merging and the calculators'
 // exact-match borders.
@@ -590,11 +601,12 @@ function bracket(pool, dia){                       // nearest <= and nearest >=
   return {lo, hi};
 }
 function pct(d, ref){ const r = d/ref - 1;
+  if(r <= -1) return pct(rethread(d, ref), ref);          // a full −100% means a non-positive diameter
   return Math.abs(r) < 5e-5 ? "exact" : (r>0?"+":"−") + (Math.abs(r)*100).toFixed(1) + "%"; }
 
 function runCalc(card){
   const dia = targetDia(card);
-  if(dia === null){
+  if(dia === null || dia <= 0){
     card.out.innerHTML = `<p class="err">Enter a size — e.g. <code>0.125"</code>, <code>1/8"</code>, <code>3.2 mm</code>, or <code>#30</code> (with the # unit).</p>`;
     return;
   }

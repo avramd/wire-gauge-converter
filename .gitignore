@@ -6,3 +6,6 @@
 
 # dev tooling — the deploy artifact is the single html file
 node_modules/
+
+# private provenance (author's personal notes)
+PROVENANCE-PRIVATE.md

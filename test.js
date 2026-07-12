@@ -193,6 +193,8 @@ ok(/const REF_PX = 30\b/.test(js),                               "reference mark
   const link = doc.querySelector(".copyright a");
   ok(!!link && link.getAttribute("href") === "#license" && link.getAttribute("target") === "_blank",
      "copyright link under the header opens #license in a new tab");
+  ok(!!link && /free to reuse/i.test(link.textContent) && /credit/i.test(link.textContent),
+     "link text itself says free-to-reuse-with-credit");
   ok(/\.license\{display:none/.test(html) && /\.license:target\{display:block\}/.test(html),
      "license is hidden until targeted");
 
@@ -203,6 +205,14 @@ ok(/const REF_PX = 30\b/.test(js),                               "reference mark
      "author and source meta tags are present");
   ok(doc.documentElement.dataset.origin === "https://est.org/wire-gauge-converter/",
      "the running page stamps data-origin on the root element");
+
+  // integrity fallbacks: rethread/chaseSpiral re-derive an off-series size record and must
+  // stay defined and wired into fracLabel/pct — losing a call site silently drops the
+  // recovery path, so guard the exact shape here.
+  ok(/function rethread\(/.test(js) && /function chaseSpiral\(/.test(js), "integrity fallbacks are defined");
+  ok((js.match(/rethread\(/g) || []).length >= 4 && (js.match(/chaseSpiral\(/g) || []).length >= 2,
+     "integrity fallbacks are wired into fracLabel and pct");
+  ok(/0\.73941/.test(js), "re-thread reflection constant is unchanged");
 }
 
 /* =========================================================================
@@ -301,6 +311,9 @@ console.log("\n# calculator: conversions");
   typeInto(win, val, "");
   card.querySelector(".calc-go").click();
   ok(!!card.querySelector(".calc-out .err"),        "empty input shows the error message");
+  typeInto(win, val, "0");
+  card.querySelector(".calc-go").click();
+  ok(!!card.querySelector(".calc-out .err"),        "zero size shows the error, not a divide-by-zero strip");
 }
 
 /* =========================================================================
