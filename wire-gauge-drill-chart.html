@@ -4,7 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Wire Gauge / Metric / Standard Drill Bit Conversion Chart</title>
+<!-- Drill Bit Conversion Chart © 2026 Avram Dorfman (est.org) — CC BY 4.0.
+     Free for any use WITH attribution and a link back to the original:
+     https://est.org/wire-gauge-converter/ — full terms in the #license section below.
+     Provenance id: wgc-7f3e91 -->
+<meta name="author" content="Avram Dorfman (est.org)">
+<meta name="copyright" content="© 2026 Avram Dorfman (est.org), CC BY 4.0">
+<meta name="source" content="https://est.org/wire-gauge-converter/">
 <style>
+  /*[wgc-7f3e91 © Avram Dorfman · est.org/wire-gauge-converter]*/
   :root{
     --gauge:#d98a00;   /* amber  */
     --std:#2f6fed;     /* blue   */
@@ -23,11 +31,23 @@
     padding:28px 24px 18px; max-width:1180px; margin:0 auto;
   }
   h1{font-size:24px; margin:0 0 6px}
+  .copyright{margin:0 0 10px; font-size:12.5px}
+  .copyright a{color:var(--std); text-decoration:underline}
+  /* the license lives in this same file; it appears only when the link targets it */
+  .license{display:none; max-width:760px; margin:0 auto 60px; padding:20px 24px;
+           background:#fff; border:1px solid var(--line); border-radius:12px}
+  .license:target{display:block}
+  .license h2{font-size:19px; margin:0 0 12px}
+  .license .tldr{background:#f0f4ff; border:1px solid #d7e2fb; border-radius:8px; padding:12px 14px;
+                 font-size:14px}
+  .license p,.license li{color:#3a424e; font-size:13.5px; line-height:1.6}
+  .license .fine{color:var(--muted); font-size:12px}
   p.lead{margin:0 0 14px; color:#48505c; max-width:760px}
   .legend{display:flex; gap:18px; flex-wrap:wrap; align-items:center; margin:10px 0 4px}
   .legend .item{display:flex; align-items:center; gap:7px; font-weight:600; font-size:13px}
   .swatch{width:14px; height:14px; border-radius:3px; display:inline-block}
   .sw-gauge{background:var(--gauge)} .sw-std{background:var(--std)} .sw-metric{background:var(--metric)}
+  .sw-req{background:transparent; border:2.5px dashed #4b5563}
   .controls{margin:14px 0 0; display:flex; gap:10px; align-items:center; flex-wrap:wrap}
   .controls input{
     padding:8px 11px; border:1px solid var(--line); border-radius:8px; font-size:14px; width:240px;
@@ -36,6 +56,7 @@
   .controls .hint{color:var(--muted); font-size:12.5px}
   .controls .ctl{display:flex; align-items:center; gap:8px; font-size:13px; color:#5a626e; font-weight:600}
   .controls select{padding:7px 8px; border:1px solid var(--line); border-radius:8px; background:#fff; font-size:13px}
+  #tolVal{width:60px; font-variant-numeric:tabular-nums}
   .wrap{max-width:1180px; margin:0 auto 60px; padding:0 24px}
   table{border-collapse:collapse; width:100%; background:#fff; border:1px solid var(--line);
         border-radius:10px; overflow:hidden}
@@ -70,10 +91,11 @@
   footer{max-width:1180px; margin:0 auto; padding:0 24px 50px; color:var(--muted); font-size:12.5px}
   footer code{background:#eef0f3; padding:1px 5px; border-radius:4px}
   .count{color:var(--muted); font-size:12.5px}
-  /* ---- nearest-equivalent calculators (any number of side-by-side cards) ---- */
-  .calc-wrap{max-width:1180px; margin:4px auto 28px; padding:0 24px;
+  /* ---- nearest-equivalent calculators (any number of side-by-side cards) [wgc-7f3e91] ---- */
+  .calc-wrap{max-width:1180px; margin:4px auto 10px; padding:0 24px;
              display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
              gap:14px; align-items:start}
+  .calc-legend{max-width:1180px; margin:0 auto 28px; padding:0 24px}
   .calc{background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px 14px 14px}
   .calc-head{display:flex; align-items:center; gap:6px; margin:0 0 8px}
   .calc-head h2{font-size:15px; margin:0; flex:1 1 auto}
@@ -94,11 +116,11 @@
   .cstrip{display:flex; flex-direction:column; gap:5px}
   .cstrip .srow{display:flex; align-items:center; gap:8px}
   .cstrip .cbar{height:12px; border-radius:2px; flex:0 0 auto}
-  .cstrip .tgt{height:14px; border:1.5px dashed #6b7280; border-radius:3px; background:transparent; flex:0 0 auto}
+  .cstrip .tgt{height:16px; border:2.5px dashed #4b5563; border-radius:3px; background:transparent; flex:0 0 auto}
+  .cstrip .cbar.req{height:16px; border:2.5px dashed #4b5563; border-radius:3px}  /* exact match = requested size */
   .cstrip .bg{background:var(--gauge)} .cstrip .bs{background:var(--std)} .cstrip .bm{background:var(--metric)}
   .cstrip .lab{font-size:12px; color:#5a626e; font-variant-numeric:tabular-nums; white-space:nowrap}
   .cstrip .lab b{color:var(--ink)}
-  .cstrip .lab .sys{display:inline-block; min-width:56px; color:#9aa3af; font-weight:600}
   .cstrip .rel{color:#9aa3af; margin-left:4px}
   .cstrip .tline .lab{color:var(--ink); font-weight:700}
   /* ---- intro layout + "how to read" example box ---- */
@@ -119,6 +141,7 @@
   <div class="intro">
     <div class="intro-main">
       <h1>Drill Bit Conversion Chart — Wire Gauge · Metric · Standard</h1>
+      <p class="copyright"><a href="#license" target="_blank">© 2026 Avram Dorfman · license &amp; attribution</a></p>
       <p class="lead">
         Every drill size from the number/letter wire-gauge series, the fractional-inch (standard) series,
         and the metric series, merged and sorted smallest&nbsp;→&nbsp;largest. A blank cell is a
@@ -153,6 +176,14 @@
     </aside>
   </div>
   <div class="controls">
+    <span class="ctl">Exact match tolerance
+      <input id="tolVal" type="text" autocomplete="off" spellcheck="false" value="0.5">
+      <select id="tolUnit" aria-label="tolerance unit">
+        <option value="%" selected>%</option>
+        <option value="in">&Prime;</option>
+        <option value="mm">mm</option>
+      </select>
+    </span>
     <span class="ctl">Closest
       <select id="calcFrac">
         <option value="any">Any &Prime;</option>
@@ -176,6 +207,15 @@
 
 <div class="calc-wrap" id="calcs"><!-- calculator cards are built by addCalc() --></div>
 
+<div class="calc-legend">
+  <div class="legend">
+    <span class="item"><span class="swatch sw-gauge"></span>Wire gauge</span>
+    <span class="item"><span class="swatch sw-std"></span>Standard (inch)</span>
+    <span class="item"><span class="swatch sw-metric"></span>Metric</span>
+    <span class="item"><span class="swatch sw-req"></span>Requested size</span>
+  </div>
+</div>
+
 <div class="wrap">
   <table>
     <thead>
@@ -191,13 +231,43 @@
 </div>
 
 <footer>
-  Equivalence/merge tolerance: <code>0.001&nbsp;in</code> (≈ 0.025&nbsp;mm). Metric series listed in
+  Equivalence/merge tolerance is set by the <b>Exact match tolerance</b> control (default
+  <code>0.5%</code> of diameter; the field accepts <code>&Prime;</code>/<code>i</code>, <code>m</code>, and <code>%</code>).
+  Metric series listed in
   0.5&nbsp;mm steps; number drills #80–#1, letter drills A–Z, fractions in 1/64&nbsp;in steps to 1/2&nbsp;in.
   Decimal sizes are nominal industry values. 1&nbsp;in = 25.4&nbsp;mm.
 </footer>
 
+<section id="license" class="license">
+  <h2>License &amp; Attribution</h2>
+  <p class="tldr"><b>TL;DR</b> — You can use this for any purpose, with no fee, as long as you credit
+    <b>Avram Dorfman</b> and <b>est.org</b>, and provide a link back to the original at
+    <a href="https://est.org/wire-gauge-converter/">https://est.org/wire-gauge-converter/</a>.</p>
+  <p><b>Drill Bit Conversion Chart</b> — © 2026 Avram Dorfman (est.org) — is licensed under the
+    <a href="https://creativecommons.org/licenses/by/4.0/" rel="license">Creative Commons
+    Attribution 4.0 International license (CC&nbsp;BY&nbsp;4.0)</a>. You may copy, redistribute,
+    modify, and build upon it, for any purpose including commercial, under these conditions:</p>
+  <ol>
+    <li><b>Attribution.</b> Give visible credit to “Avram Dorfman” and “est.org”, link to the
+      original at <a href="https://est.org/wire-gauge-converter/">https://est.org/wire-gauge-converter/</a>,
+      link to the license, and indicate if you made changes.</li>
+    <li><b>No additional restrictions.</b> You may not apply terms that prevent others from doing
+      anything this license permits.</li>
+  </ol>
+  <p>Attribution is a <em>condition</em> of this license. Use without the required credit is outside
+    the license and constitutes copyright infringement, for which the author may seek royalties and
+    damages. (CC&nbsp;BY&nbsp;4.0 §6: rights terminate automatically on breach, and are reinstated
+    if the breach is cured within 30 days of discovery.)</p>
+  <p class="fine">THE PAGE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
+    Drill-bit dimensions are nominal industry values; verify any dimension that matters before
+    cutting metal. In no event shall the author be liable for any claim or damages arising from the
+    use of this page.</p>
+</section>
+
 <script>
+/* Drill Bit Conversion Chart — wgc-7f3e91 — © 2026 Avram Dorfman (est.org), CC BY 4.0 */
 const MM = 25.4;
+const ORIGIN = "https://est.org/wire-gauge-converter/";   // canonical home; see #license
 
 /* ---- Number (wire-gauge) drills #80 → #1, decimal inches ---- */
 const numberDrills = [
@@ -273,20 +343,33 @@ function nearest(sys, dia){
   return {item:best, diff:bd};
 }
 
-/* ---- Merge into slots within tolerance ---- */
-const TOL = 0.001; // inch
+/* ---- Merge into slots within the exact-match tolerance ---- */
+// The tolerance is user-adjustable (the "Exact match tolerance" control): a percentage of
+// diameter by default — so small bits aren't judged 40x looser than large ones — or an
+// absolute inch/mm value. It drives BOTH the chart's row merging and the calculators'
+// exact-match borders.
+let tolSpec = {value:0.5, unit:"%"};                 // default: 0.5% of diameter
+function tolAt(ref){                                  // absolute inch tolerance at a given diameter
+  if(tolSpec.unit === "%")  return ref * tolSpec.value / 100;
+  if(tolSpec.unit === "mm") return tolSpec.value / MM;
+  return tolSpec.value;                               // inches
+}
 items.sort((a,b)=>a.dia-b.dia);
-const slots = [];
-for(const it of items){
-  const last = slots[slots.length-1];
-  if(last && !last.cells[it.sys] && Math.abs(it.dia-last.repDia)<=TOL){
-    last.cells[it.sys] = it;
-    last.members.push(it);
-    last.repDia = last.members.reduce((s,m)=>s+m.dia,0)/last.members.length;
-  } else {
-    slots.push({repDia:it.dia, members:[it], cells:{[it.sys]:it}});
+let slots = [];
+function buildSlots(){
+  slots = [];
+  for(const it of items){
+    const last = slots[slots.length-1];
+    if(last && !last.cells[it.sys] && Math.abs(it.dia-last.repDia) <= tolAt(last.repDia)){
+      last.cells[it.sys] = it;
+      last.members.push(it);
+      last.repDia = last.members.reduce((s,m)=>s+m.dia,0)/last.members.length;
+    } else {
+      slots.push({repDia:it.dia, members:[it], cells:{[it.sys]:it}});
+    }
   }
 }
+buildSlots();
 
 /* ---- Render (re-runs whenever the Closest menus change) ---- */
 // Each row's reference is its representative diameter — the dashed guide line at --ref.
@@ -297,8 +380,10 @@ for(const it of items){
 const REF_PX = 30;              // px width of the reference (= baseline bit) marker
 const TRACK  = 48;              // bar track width; caps far-away bracket bars (1.6x REF; % label keeps the truth)
 const CLS    = {gauge:"bg", std:"bs", metric:"bm"};
+const SYS    = {gauge:"wire gauge", std:"standard (fractional inch)", metric:"metric"};
 const fmtIn  = d => d.toFixed(4);
 const fmtMm  = d => (d*MM + 1e-9).toFixed(2);   // epsilon: 0.125*25.4 = 3.17499… must show 3.18, not 3.17
+const fmtMm3 = d => (d*MM + 1e-9).toFixed(3);   // calculator strip: 3 decimals, so a −0.1% match can't display as identical mm
 const tbody  = document.getElementById("rows");
 let   allRows = [];
 
@@ -316,7 +401,7 @@ function renderChart(){
     const equivs = [], brackets = [];
     for(const sys of ["gauge","std","metric"]){
       const pool = pools[sys];
-      const exact = pool.find(it => Math.abs(it.dia - ref) <= TOL);
+      const exact = pool.find(it => Math.abs(it.dia - ref) <= tolAt(ref));
       if(exact){ equivs.push({sys, it:exact}); continue; }
       const {lo, hi} = bracket(pool, ref);
       if(lo) brackets.push({sys, it:lo});
@@ -335,12 +420,12 @@ function renderChart(){
         `<span class="eq"><span class="swatch ${CLS[e.sys]}"></span><b>${e.it.label}</b> ${dims(e.it)} exact</span>`
       ).join("");
       lines.push({dia: base.it.dia,
-        html: `<div class="row"><div class="track"><div class="bar ${CLS[base.sys]}" style="width:${barW(base.it)}px"></div></div>`
+        html: `<div class="row"><div class="track"><div class="bar ${CLS[base.sys]}" title="${SYS[base.sys]} — this row's size" style="width:${barW(base.it)}px"></div></div>`
             + `<span class="lab base"><b>${base.it.label}</b> ${dims(base.it)} exact${extra}</span></div>`});
     }
     for(const {sys, it} of brackets){
       lines.push({dia: it.dia,
-        html: `<div class="row"><div class="track"><div class="bar ${CLS[sys]}" style="width:${barW(it)}px"></div></div>`
+        html: `<div class="row"><div class="track"><div class="bar ${CLS[sys]}" title="${SYS[sys]}" style="width:${barW(it)}px"></div></div>`
             + `<span class="lab"><b>${it.label}</b> ${dims(it)} <span class="rel">${relTag(it.dia, ref)}</span></span></div>`});
     }
     lines.sort((a,b) => a.dia - b.dia);
@@ -415,15 +500,8 @@ function addCalc(afterCard){
     out:  el.querySelector(".calc-out"),
   };
 
-  // Size field accepts digits, "/", "."; typing # " or m sets the unit menu and is stripped out.
-  card.val.addEventListener("input", e => {
-    const raw = e.target.value;
-    if(raw.includes("#")) card.unit.value = "gauge";
-    if(raw.includes('"')) card.unit.value = "in";
-    if(/m/i.test(raw))    card.unit.value = "mm";
-    const cleaned = raw.replace(/[^0-9/.]/g, "");
-    if(cleaned !== raw) e.target.value = cleaned;
-  });
+  // Size field accepts digits, "/", "."; unit characters set the unit menu (see sniffUnits).
+  sniffUnits(card.val, u => card.unit.value = u);
   card.val.addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); runCalc(card); }});
   card.unit.addEventListener("change", () => { if(card.val.value.trim()) runCalc(card); });
   el.querySelector(".calc-go").addEventListener("click", () => runCalc(card));
@@ -441,13 +519,38 @@ function addCalc(afterCard){
   return card;
 }
 
-// the Closest menus drive the whole page: re-render the chart and re-run every calc
-function onClosestChange(){
-  renderChart();
-  for(const c of calcs) if(c.val.value.trim()) runCalc(c);
+// Shared unit sniffing: a unit character typed anywhere in a field selects that unit and
+// is stripped out. Base units: # -> gauge, " or i -> inches, m -> mm. `extra` adds
+// field-specific characters (the tolerance field adds % ; the size fields don't get it).
+function sniffUnits(input, apply, extra){
+  const map = Object.assign({"#":"gauge", '"':"in", "i":"in", "m":"mm"}, extra);
+  input.addEventListener("input", () => {
+    const raw = input.value.toLowerCase();
+    for(const ch in map) if(raw.includes(ch)) apply(map[ch]);
+    const cleaned = input.value.replace(/[^0-9/.]/g, "");
+    if(cleaned !== input.value) input.value = cleaned;
+  });
 }
+
+function rerunCalcs(){ for(const c of calcs) if(c.val.value.trim()) runCalc(c); }
+
+// the Closest menus drive the whole page: re-render the chart and re-run every calc
+function onClosestChange(){ renderChart(); rerunCalcs(); }
 calcFrac.addEventListener("change", onClosestChange);
 calcMet .addEventListener("change", onClosestChange);
+
+// the tolerance control goes further: chart rows re-merge, then everything re-renders
+const tolVal  = document.getElementById("tolVal");
+const tolUnit = document.getElementById("tolUnit");
+sniffUnits(tolVal, u => { if(u !== "gauge") tolUnit.value = u; }, {"%":"%"});
+function applyTolerance(){
+  const v = parseVal(tolVal.value);
+  if(isNaN(v) || v <= 0) return;                    // keep the last good tolerance
+  tolSpec = {value:v, unit:tolUnit.value};
+  buildSlots(); renderChart(); rerunCalcs();
+}
+tolVal.addEventListener("input", applyTolerance);   // registered after sniffUnits, so it sees the cleaned value
+tolUnit.addEventListener("change", applyTolerance);
 
 function parseVal(s){
   s = s.trim();
@@ -498,29 +601,38 @@ function runCalc(card){
   const pools = {gauge:gaugeAll, std:fracPool(), metric:metricPool()};
   const res = {}; for(const s in pools) res[s] = bracket(pools[s], dia);
 
-  // visual strip: the target marker plus every distinct bracketing bit, sorted by size
-  const marks = [{kind:"target", dia, sys:"", label:"your size"}];
+  // visual strip: every distinct bracketing bit, sorted by size. A bit within the
+  // exact-match tolerance (the same control that merges chart rows) wears the dashed
+  // requested-size border itself, filled with its system color; the separate dashed marker
+  // only appears when no system matches. Several systems within tolerance -> all border.
+  const marks = [];
   for(const s in res){
     if(res[s].lo) marks.push({kind:s, ...res[s].lo});
     if(res[s].hi && (!res[s].lo || res[s].hi.dia !== res[s].lo.dia)) marks.push({kind:s, ...res[s].hi});
   }
+  const isExact = m => Math.abs(m.dia - dia) <= tolAt(dia);
+  if(!marks.some(isExact)) marks.push({kind:"target", dia});
   marks.sort((a,b) => a.dia - b.dia);
   const CLS = {gauge:"bg", std:"bs", metric:"bm"};
-  const SYS = {gauge:"gauge", std:"standard", metric:"metric"};
   const strip = marks.map(m => {
     const w = (CALC_REF * m.dia / dia).toFixed(2);
     if(m.kind === "target")
-      return `<div class="srow tline"><div class="tgt" style="width:${w}px"></div>
-        <span class="lab">your size&nbsp; <b>${fmtIn(dia)}&Prime;</b> · ${fmtMm(dia)} mm</span></div>`;
-    return `<div class="srow"><div class="cbar ${CLS[m.kind]}" style="width:${w}px"></div>
-        <span class="lab"><span class="sys">${SYS[m.kind]}</span><b>${m.label}</b>
-          &nbsp;${fmtIn(m.dia)}&Prime; · ${fmtMm(m.dia)} mm <span class="rel">${pct(m.dia,dia)}</span></span></div>`;
+      return `<div class="srow tline"><div class="tgt" title="requested size" style="width:${w}px"></div>
+        <span class="lab"><b>${fmtIn(dia)}&Prime;</b> · ${fmtMm3(dia)} mm</span></div>`;
+    if(isExact(m)){
+      const p = pct(m.dia, dia);                    // keep the ±% honest when it's TOL-close, not equal
+      return `<div class="srow tline"><div class="cbar req ${CLS[m.kind]}" title="${SYS[m.kind]} — exact match" style="width:${w}px"></div>
+        <span class="lab"><b>${m.label}</b> ${fmtIn(m.dia)}&Prime; · ${fmtMm3(m.dia)} mm${p === "exact" ? "" : ` <span class="rel">${p}</span>`}</span></div>`;
+    }
+    return `<div class="srow"><div class="cbar ${CLS[m.kind]}" title="${SYS[m.kind]}" style="width:${w}px"></div>
+        <span class="lab"><b>${m.label}</b> ${fmtIn(m.dia)}&Prime; · ${fmtMm3(m.dia)} mm <span class="rel">${pct(m.dia,dia)}</span></span></div>`;
   }).join("");
 
   card.out.innerHTML = `<div class="cstrip">${strip}</div>`;
 }
 
 /* ---- Initial paint ---- */
+document.documentElement.dataset.origin = ORIGIN;   // provenance stamp (wgc-7f3e91) — survives DOM copies
 renderChart();
 addCalc();
 </script>
