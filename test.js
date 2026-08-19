@@ -39,11 +39,17 @@ function ok(cond, msg){ checks++; if(!cond){ failures++; console.error("  ✗ " 
 
 /* ---------- page + event helpers ---------- */
 
-function newPage(){
+function newPage(opts = {}){
   const errors = [];
   const vc = new VirtualConsole();
   vc.on("jsdomError", e => errors.push(e));
-  const dom = new JSDOM(html, { runScripts: "dangerously", virtualConsole: vc });
+  const dom = new JSDOM(html, {
+    runScripts: "dangerously", virtualConsole: vc,
+    url: "https://est.org/wire-gauge-converter/",     // a real origin, so localStorage works
+    beforeParse(window){                              // seed a "previous session" before scripts run
+      if(opts.store) window.localStorage.setItem("wgc-calcs", JSON.stringify(opts.store));
+    },
+  });
   return { win: dom.window, doc: dom.window.document, errors };
 }
 function fire(win, el, type){ el.dispatchEvent(new win.Event(type, { bubbles: true })); }
@@ -187,6 +193,9 @@ ok(/const REF_PX = 30\b/.test(js),                               "reference mark
   ok(/credit\s/.test(lic.textContent) && /Avram Dorfman/.test(lic.textContent) && /est\.org/.test(lic.textContent),
      "TL;DR requires credit to Avram Dorfman and est.org");
   ok(!!lic.querySelector('a[href="https://est.org/wire-gauge-converter/"]'), "license links back to the original URL");
+  ok(!!lic.querySelector('a[href="https://github.com/avramd/wire-gauge-converter"]') &&
+     /single self-contained file/.test(lic.textContent) && /Save\sPage\sAs/.test(lic.textContent),  // \s matches the &nbsp;s
+     "license points to the GitHub source and explains save-page copying");
   ok(!!lic.querySelector('a[href="https://creativecommons.org/licenses/by/4.0/"]') &&
      /CC\sBY\s4\.0/.test(lic.textContent),                       // \s matches the &nbsp; in "CC BY 4.0"
      "license is CC BY 4.0 with a link to the deed");
@@ -367,6 +376,60 @@ console.log("\n# calculator: cards");
   setSelect(win, doc.getElementById("calcMetric"), "any");
   ok(stripLabels(first).includes("3.2 mm"),         "surviving cards still update after a delete");
   ok(errors.length === 0,                           `no script errors during card add/remove (${errors.map(e=>e.message)})`);
+}
+
+/* =========================================================================
+ * Persistence, Clear all, CSV export
+ * =======================================================================*/
+console.log("\n# persistence, clear all, csv export");
+{
+  // typing writes through to localStorage
+  const { win, doc } = newPage();
+  const card = cards(doc)[0];
+  typeInto(win, card.querySelector(".calc-label"), "pilot, holes");
+  runCard(win, card, "1/8");
+  card.querySelector(".mini.add").click();
+  runCard(win, cards(doc)[1], "4.5mm");
+  const stored = JSON.parse(win.localStorage.getItem("wgc-calcs"));
+  ok(stored.length === 2 && stored[0].label === "pilot, holes" && stored[0].val === "1/8" &&
+     stored[0].unit === "in" && stored[1].val === "4.5" && stored[1].unit === "mm",
+     `cards persist to localStorage (got ${win.localStorage.getItem("wgc-calcs")})`);
+}
+{
+  // a saved session is restored on load; Clear all resets it; the CSV reflects it
+  const store = [{label:"pilot, holes", val:"1/8", unit:"in"},
+                 {label:"anchor",       val:"4.5", unit:"mm"},
+                 {label:"",             val:"",    unit:"in"}];
+  const { win, doc, errors } = newPage({store});
+  ok(cards(doc).length === 3,                        "restore rebuilds every saved card");
+  ok(parseStrip(cards(doc)[0]).some(r => r.exactHit) &&
+     parseStrip(cards(doc)[1]).some(r => r.exactHit && r.label === "#16"),
+     "restored cards compute their strips");
+  ok(!cards(doc)[0].querySelector(".mini.del") && !!cards(doc)[2].querySelector(".mini.del"),
+     "restored first card still has no [-]");
+
+  // CSV: one row per tool with a value; lessers left-padded so the target column is
+  // central; exact systems fold into the target's units cell instead of repeating
+  const csv = win.buildCsv();
+  const lines = csv.split("\n");
+  ok(lines.length === 3, `csv has a header + one row per tool with a value (${lines.length} lines)`);
+  ok(lines[0] === "label,value,units,offset,value,units,offset,target,units,offset,value,units,offset,value,units,offset",
+     `csv header centers the target (got ${lines[0]})`);
+  ok(lines[1] === '"pilot, holes",3,mm,-5.5%,31,#,-4.0%,1/8,in,,3.2,mm,+0.8%,30,#,+2.8%',
+     `1/8" row: two lessers, exact std folded into in units (got ${lines[1]})`);
+  ok(lines[2] === 'anchor,,,,11/64,in,-3.0%,4.5,mm&#,,15,#,+1.6%,3/16,in,+5.8%',
+     `4.5mm row: left-padded lesser, units overloaded to mm&# (got ${lines[2]})`);
+  ok(!/[^\n -~]/.test(csv), "csv is pure printable ASCII");
+
+  // Clear all: extras deleted, first card blanked, state persisted
+  doc.getElementById("clearBtn").click();
+  ok(cards(doc).length === 1 && cards(doc)[0].querySelector(".calc-val").value === "" &&
+     cards(doc)[0].querySelector(".calc-label").value === "" &&
+     !cards(doc)[0].querySelector(".cstrip"),
+     "Clear all deletes the extras and blanks the first card");
+  ok(JSON.parse(win.localStorage.getItem("wgc-calcs")).length === 1, "cleared state persists");
+  ok(win.buildCsv() === null,                        "csv with no values yields nothing");
+  ok(errors.length === 0, `no script errors through restore/clear (${errors.map(e=>e.message)})`);
 }
 
 /* =========================================================================

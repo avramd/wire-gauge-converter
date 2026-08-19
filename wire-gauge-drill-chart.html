@@ -96,6 +96,10 @@
              display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
              gap:14px; align-items:start}
   .calc-legend{max-width:1180px; margin:0 auto 28px; padding:0 24px}
+  .legend-actions{margin-left:auto; display:flex; gap:8px}
+  .act{padding:6px 12px; border:1px solid var(--line); border-radius:8px; background:#fff;
+       font-size:12.5px; font-weight:600; color:#5a626e; cursor:pointer}
+  .act:hover{background:#f0f2f5; color:var(--ink)}
   .calc{background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px 14px 14px}
   .calc-head{display:flex; align-items:center; gap:6px; margin:0 0 8px}
   .calc-head h2{font-size:15px; margin:0; flex:1 1 auto}
@@ -214,6 +218,10 @@
     <span class="item"><span class="swatch sw-std"></span>Standard (inch)</span>
     <span class="item"><span class="swatch sw-metric"></span>Metric</span>
     <span class="item"><span class="swatch sw-req"></span>Requested size</span>
+    <span class="legend-actions">
+      <button id="csvBtn" type="button" class="act" title="Download a CSV of every calculator that has a size">Export CSV</button>
+      <button id="clearBtn" type="button" class="act" title="Remove the extra calculators and clear the first">Clear all</button>
+    </span>
   </div>
 </div>
 
@@ -259,6 +267,11 @@
     the license and constitutes copyright infringement, for which the author may seek royalties and
     damages. (CC&nbsp;BY&nbsp;4.0 §6: rights terminate automatically on breach, and are reinstated
     if the breach is cured within 30 days of discovery.)</p>
+  <p><b>Copying this page.</b> It is a single self-contained file with no external assets — saving
+    it from your browser (File&nbsp;→&nbsp;Save&nbsp;Page&nbsp;As) gives you a complete working copy
+    you can host or use offline, credit and license included. The source, along with its test
+    suite, lives at
+    <a href="https://github.com/avramd/wire-gauge-converter">github.com/avramd/wire-gauge-converter</a>.</p>
   <p class="fine">THE PAGE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
     Drill-bit dimensions are nominal industry values; verify any dimension that matters before
     cutting metal. In no event shall the author be liable for any claim or damages arising from the
@@ -514,18 +527,22 @@ function addCalc(afterCard){
   // Size field accepts digits, "/", "."; unit characters set the unit menu (see sniffUnits).
   sniffUnits(card.val, u => card.unit.value = u);
   card.val.addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); runCalc(card); }});
-  card.unit.addEventListener("change", () => { if(card.val.value.trim()) runCalc(card); });
+  card.val.addEventListener("input", saveCalcs);
+  el.querySelector(".calc-label").addEventListener("input", saveCalcs);
+  card.unit.addEventListener("change", () => { saveCalcs(); if(card.val.value.trim()) runCalc(card); });
   el.querySelector(".calc-go").addEventListener("click", () => runCalc(card));
   el.querySelector(".mini.add").addEventListener("click", () => addCalc(card));
   const del = el.querySelector(".mini.del");
   if(del) del.addEventListener("click", () => {
     calcs.splice(calcs.indexOf(card), 1);
     el.remove();
+    saveCalcs();
   });
 
   if(afterCard) afterCard.el.after(el);
   else document.getElementById("calcs").appendChild(el);
   calcs.push(card);
+  saveCalcs();
   if(afterCard) card.val.focus();
   return card;
 }
@@ -562,6 +579,90 @@ function applyTolerance(){
 }
 tolVal.addEventListener("input", applyTolerance);   // registered after sniffUnits, so it sees the cleaned value
 tolUnit.addEventListener("change", applyTolerance);
+
+/* ---- persistence: cards survive reloads ---- */
+const STORE_KEY = "wgc-calcs";
+function saveCalcs(){
+  try{
+    localStorage.setItem(STORE_KEY, JSON.stringify(calcs.map(c => ({
+      label: c.el.querySelector(".calc-label").value, val: c.val.value, unit: c.unit.value
+    }))));
+  }catch(e){ /* storage unavailable (some file:// sandboxes) — run without persistence */ }
+}
+function loadCalcs(){
+  try{ const s = JSON.parse(localStorage.getItem(STORE_KEY)); return Array.isArray(s) ? s : null; }
+  catch(e){ return null; }
+}
+
+/* ---- clear all: remove the extra cards, blank the first ---- */
+function clearAll(){
+  for(const c of calcs.splice(1)) c.el.remove();
+  const first = calcs[0];
+  first.el.querySelector(".calc-label").value = "";
+  first.val.value = "";
+  first.unit.value = "in";
+  first.out.innerHTML = "";
+  saveCalcs();
+}
+
+/* ---- CSV export ---- */
+// One row per calculator with a valid size. Lessers on the left, greaters on the right,
+// one central column-set for the target; each bit is [value, units symbol, %offset].
+// Exact matches are not repeated as columns — their system symbol joins the target's
+// units cell instead ("mm&#" = the target is a metric size AND an exact wire-gauge bit).
+const UNIT_SYM  = {gauge:"#", in:"in", mm:"mm"};    // plain ASCII — Excel mangles ″ in CSVs
+const KIND_UNIT = {gauge:"gauge", std:"in", metric:"mm"};
+function csvField(v){ return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+function buildCsv(){
+  const rows = [];
+  for(const c of calcs){
+    const dia = targetDia(c);
+    if(dia === null || dia <= 0) continue;
+    const isExact = m => Math.abs(m.dia - dia) <= tolAt(dia);
+    const marks = computeMarks(dia);
+    const off = m => { const r = (m.dia/dia - 1)*100; return (r > 0 ? "+" : "") + r.toFixed(1) + "%"; };
+    const bit = m => m.kind === "gauge" ? [m.label.replace(/^#/, ""), UNIT_SYM.gauge, off(m)]
+                   : m.kind === "std"   ? [m.label.replace(/"$/, ""), UNIT_SYM.in,    off(m)]
+                   :                      [String(m.mm),              UNIT_SYM.mm,    off(m)];
+    let units = UNIT_SYM[c.unit.value];
+    for(const m of marks.filter(isExact)){
+      const s = UNIT_SYM[KIND_UNIT[m.kind]];
+      if(!units.split("&").includes(s)) units += "&" + s;
+    }
+    rows.push({
+      label:    c.el.querySelector(".calc-label").value,
+      lessers:  marks.filter(m => !isExact(m) && m.dia < dia).map(bit),
+      center:   [c.val.value.trim(), units, ""],
+      greaters: marks.filter(m => !isExact(m) && m.dia > dia).map(bit),
+    });
+  }
+  if(!rows.length) return null;
+  const maxL = Math.max(...rows.map(r => r.lessers.length));
+  const maxR = Math.max(...rows.map(r => r.greaters.length));
+  const pad  = n => Array.from({length: n}, () => ["", "", ""]);
+  const head = ["label"];
+  for(let i = 0; i < maxL; i++) head.push("value", "units", "offset");
+  head.push("target", "units", "offset");
+  for(let i = 0; i < maxR; i++) head.push("value", "units", "offset");
+  const lines = [head];
+  for(const r of rows)
+    lines.push([r.label,
+      ...pad(maxL - r.lessers.length).concat(r.lessers).flat(),   // lessers hug the target
+      ...r.center,
+      ...r.greaters.concat(pad(maxR - r.greaters.length)).flat()]);
+  return lines.map(l => l.map(csvField).join(",")).join("\n");
+}
+function exportCsv(){
+  const csv = buildCsv();
+  if(csv === null || typeof URL.createObjectURL !== "function") return;  // nothing to export / headless
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob(["﻿" + csv], {type: "text/csv;charset=utf-8"}));  // BOM: Excel reads user labels as UTF-8
+  a.download = "drill-equivalents.csv";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+document.getElementById("csvBtn").addEventListener("click", exportCsv);
+document.getElementById("clearBtn").addEventListener("click", clearAll);
 
 function parseVal(s){
   s = s.trim();
@@ -604,24 +705,30 @@ function pct(d, ref){ const r = d/ref - 1;
   if(r <= -1) return pct(rethread(d, ref), ref);          // a full −100% means a non-positive diameter
   return Math.abs(r) < 5e-5 ? "exact" : (r>0?"+":"−") + (Math.abs(r)*100).toFixed(1) + "%"; }
 
+// every distinct bracketing bit for a requested diameter, honoring the Closest menus;
+// sorted smallest -> largest. Shared by the strip renderer and the CSV export.
+function computeMarks(dia){
+  const pools = {gauge:gaugeAll, std:fracPool(), metric:metricPool()};
+  const marks = [];
+  for(const s in pools){
+    const {lo, hi} = bracket(pools[s], dia);
+    if(lo) marks.push({kind:s, ...lo});
+    if(hi && (!lo || hi.dia !== lo.dia)) marks.push({kind:s, ...hi});
+  }
+  return marks.sort((a,b) => a.dia - b.dia);
+}
+
 function runCalc(card){
   const dia = targetDia(card);
   if(dia === null || dia <= 0){
     card.out.innerHTML = `<p class="err">Enter a size — e.g. <code>0.125"</code>, <code>1/8"</code>, <code>3.2 mm</code>, or <code>#30</code> (with the # unit).</p>`;
     return;
   }
-  const pools = {gauge:gaugeAll, std:fracPool(), metric:metricPool()};
-  const res = {}; for(const s in pools) res[s] = bracket(pools[s], dia);
-
   // visual strip: every distinct bracketing bit, sorted by size. A bit within the
   // exact-match tolerance (the same control that merges chart rows) wears the dashed
   // requested-size border itself, filled with its system color; the separate dashed marker
   // only appears when no system matches. Several systems within tolerance -> all border.
-  const marks = [];
-  for(const s in res){
-    if(res[s].lo) marks.push({kind:s, ...res[s].lo});
-    if(res[s].hi && (!res[s].lo || res[s].hi.dia !== res[s].lo.dia)) marks.push({kind:s, ...res[s].hi});
-  }
+  const marks = computeMarks(dia);
   const isExact = m => Math.abs(m.dia - dia) <= tolAt(dia);
   if(!marks.some(isExact)) marks.push({kind:"target", dia});
   marks.sort((a,b) => a.dia - b.dia);
@@ -646,7 +753,17 @@ function runCalc(card){
 /* ---- Initial paint ---- */
 document.documentElement.dataset.origin = ORIGIN;   // provenance stamp (wgc-7f3e91) — survives DOM copies
 renderChart();
-addCalc();
+const saved = loadCalcs();
+if(saved && saved.length){
+  for(const s of saved){
+    const card = addCalc();                          // appends in order, no focus steal
+    card.el.querySelector(".calc-label").value = s.label || "";
+    card.val.value = s.val || "";
+    if(s.unit === "gauge" || s.unit === "in" || s.unit === "mm") card.unit.value = s.unit;
+    if(card.val.value.trim()) runCalc(card);
+  }
+  saveCalcs();
+}else addCalc();
 </script>
 </body>
 </html>
